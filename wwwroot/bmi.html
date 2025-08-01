@@ -10,6 +10,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- 引用 bootstrap 的 JS 檔 -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- 引用 toastr 的 JS 檔 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- ...existing code... -->
     <script>
         //檢查身高體重是否為數字
         function checkNUM() {
@@ -33,14 +37,25 @@
         $(document).ready(function () {
             //按下Cal按鈕時，呼叫checkNUM()與checkRange()檢查身高體重是否為數字與合理範圍
             $("#Cal").click(function () {
-                if (checkNUM() == false || checkRange() == false) {
-                    return false;
+            if (checkNUM() == false || checkRange() == false) {
+                return false;
+            }
+            //顯示身高體重與bmi
+            var weight = $("#weight").val();
+            var height = $("#height").val();
+            // 改成呼叫 http://localhost:5053/api/bmi
+            $.ajax({
+                type: "POST",
+                url: "api/bmi",
+                contentType: "application/json",
+                data: JSON.stringify({ weight: weight, height: height }),
+                success: function (response) {
+                    toastr.success("您的BMI是：" + response.bmi);
+                },
+                error: function () {
+                    toastr.error("計算失敗，請稍後再試。");
                 }
-                //顯示身高體重與bmi
-                var weight = $("#weight").val();
-                var height = $("#height").val();
-                var bmi = (weight / ((height / 100) * (height / 100))).toFixed(2);
-                alert("身高：" + height + "公分\n體重：" + weight + "公斤\nBMI：" + bmi);
+            });
             });
         });
     </script>
